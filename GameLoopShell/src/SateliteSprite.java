@@ -8,6 +8,8 @@ import javax.imageio.ImageIO;
 
 public class SateliteSprite extends Sprite {
 
+	private static final int VELOCITY = 25;
+
 	public static double GRAVITATIONAL_CONSTANT = 1E-6;
 	
 	protected Image image_straight;
@@ -142,34 +144,56 @@ public class SateliteSprite extends Sprite {
 	@Override
 	public void update(KeyboardInput keyboard, long actual_delta_time) {
 
-		//calculate new position assuming there are no changes in direction
-	    double movement_x = (this.velocityX * actual_delta_time * 0.001);
+		double movement_x = (this.velocityX * actual_delta_time * 0.001);
 	    double movement_y = (this.velocityY * actual_delta_time * 0.001);
 	    this.currentX += movement_x;
 	    this.currentY += movement_y;
 		
 		for (Sprite other : sprites) {
-			if (other instanceof SateliteSprite && other != this) {
-				SateliteSprite satelite = (SateliteSprite)other;
-				if (satelite.isAnchored() == false) {
-					//calculate the attraction vector
-					double deltaX = satelite.currentX - this.currentX;
-					double deltaY = satelite.currentY - this.currentY;
-					double distanceSquared = deltaX * deltaX + deltaY * deltaY;
-					double force = GRAVITATIONAL_CONSTANT * ((this.mass * satelite.mass) / distanceSquared);
-					//force == mass * acceleration; thus, acceleration = force / mass
-					double acceleration = force / satelite.mass;
-					double vector = acceleration * actual_delta_time * 0.001;
-					double tangent = deltaY / deltaX;
-					//too lazy to do the math here... vector should equal sqrt(attractionX ^ 2 + attractionY ^ 2);
-					double attractionX = deltaX * vector * -1;
-					double attractionY = deltaY * vector * -1;
-					satelite.velocityX += attractionX;
-					satelite.velocityY += attractionY;
-					//System.out.println(String.format("satelite.velocityX %.10f;  satelite.velocityY %.10f; delta %d", satelite.velocityX, satelite.velocityY, actual_delta_time));
+			if (other instanceof SimpleSprite) {
+				SimpleSprite player = (SimpleSprite)other;
+				
+				double newX = currentX;
+				double newY = currentY;
+				
+				
+				//calculate the attraction vector
+				double deltaX = player.currentX - this.currentX;
+				double deltaY = player.currentY - this.currentY;
+			
+				
+				//implement logic for moving towards sprite
+				if (deltaX > 0) {
+					this.velocityX = VELOCITY;
+				}
+				else if (deltaX < 0) {
+					this.velocityX = -VELOCITY;
+				}
+				else {
+					this.velocityX = 0;
+				}
+				
+				if (deltaY > 0) {
+					this.velocityY = VELOCITY;
+				}
+				else if (deltaY < 0) {
+					this.velocityY = -VELOCITY;
+				}
+				else {
+					this.velocityY = 0;
+				}
+				newX +=  actual_delta_time * 0.001 * velocityX;
+				newY +=  actual_delta_time * 0.001 * velocityY;
+				
+
+				if (checkCollisionWithBarrier(newX, newY) == false) {
+					
+					this.currentX = newX;
+					this.currentY = newY;
 				}
 			}
 		}
+
 				
 	}			
 	

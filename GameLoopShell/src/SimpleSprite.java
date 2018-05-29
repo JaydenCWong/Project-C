@@ -10,7 +10,7 @@ public class SimpleSprite extends Sprite {
 	
 	private double velocityY = 500;
 	private double velocityX = 500;
-	private final double VELOCITY = 0.5;
+	private final double VELOCITY = 500;
 
 	public SimpleSprite(double currentX, double currentY) {
 		super();
@@ -37,7 +37,7 @@ public class SimpleSprite extends Sprite {
 		
 		//LEFT	
 		if (keyboard.keyDown(37)) {
-			newX -= actual_delta_time * VELOCITY;
+			newX -= actual_delta_time * 0.001 * VELOCITY;
 		}
 		//UP
 		if (keyboard.keyDown(38)) {

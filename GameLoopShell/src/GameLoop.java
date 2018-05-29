@@ -118,7 +118,8 @@ public class GameLoop extends JFrame {
 //   		}
     	me = new SimpleSprite(CastleBackground.START_X,CastleBackground.START_Y);
     	sprites.add(me);
-    	
+    	SateliteSprite test = new SateliteSprite(CastleBackground.START_X, CastleBackground.START_Y,0, 0, 0, false);
+    	sprites.add(test);
    		
     	for (Sprite sprite : sprites) {
     		sprite.setBarriers(barriers);
