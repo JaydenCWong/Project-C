@@ -3,23 +3,27 @@ import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 import javax.imageio.ImageIO;
 
 public class Archer extends Sprite{
-	protected double velocityX = 000;        	//PIXELS PER SECOND
-	protected double velocityY = 0;          	//PIXELS PER SECOND
+	protected double velocityX = 0.1;          	//PIXELS PER SECOND
+	protected double velocityY = 0.1;			//PIXELS PER SECOND
+	private double velocity = 0.1;					
 	protected double reloadTime = 0;
-	private int currentAngle = 0;
+	private int shootingAngle = 0;
 	private int range;
 	private double damage;
 	private double rateOfFire;
 	private double speed;
 	private double health;
+	private int changeMovementTime = 0;
 	
 	
 	public Archer(double currentX, double currentY, int floor){
-		
+		this.currentX = currentX;
+		this.currentY = currentY;
 		try {
 			this.defaultImage = ImageIO.read(new File("res/simple-sprite.png"));
 			this.IMAGE_HEIGHT = this.defaultImage.getHeight(null);
@@ -59,8 +63,8 @@ public class Archer extends Sprite{
 		}
 		
 	}
-	public int getCurrentAngle() {
-		return currentAngle;
+	public int getShootingAngle() {
+		return shootingAngle;
 	}
 	public int getRange() {
 		return range;
@@ -79,50 +83,108 @@ public class Archer extends Sprite{
 	}
 	@Override
 	public void update(KeyboardInput keyboard, long actual_delta_time) {
-		// TODO Auto-generated method stub
+		changeMovementTime -= actual_delta_time;
+		double newX = currentX;
+		double newY = currentY;
+		Random randomTime = new Random();
+		
+		reloadTime -= actual_delta_time;
+		if (reloadTime < 0) {
+			shoot();
+		}
+				
+		if (changeMovementTime <= 100){
+			changeMovementTime = randomTime.nextInt(551) + 1000;
+			Random randomDirection = new Random();
+			int direction = randomDirection.nextInt(2);
+			if (changeMovementTime % 2 == 0){
+				if (direction == 0){
+					velocityY = -velocity;
+					velocityX = 0;
+				}
+				else if(direction == 1){
+					velocityX = -velocity;
+					velocityY = 0;
+				}
+			}
+			else if(changeMovementTime % 2 == 1){
+				if (direction == 0){
+					velocityY = velocity;
+					velocityX = 0;
+				}
+				else if(direction == 1){
+					velocityX = velocity;
+					velocityY = 0;
+				}
+			}
+			
+		}
+		newX += actual_delta_time * velocityX;
+		newY += actual_delta_time * velocityY;
+		if (checkCollisionWithBarrier(newX, newY) == false) {
+			
+
+			this.currentX = newX;
+			this.currentY = newY;
+		}
+		for (Sprite other : sprites) {
+			if (other instanceof SimpleSprite) {
+				SimpleSprite player = (SimpleSprite)other;
+				
+				double deltaX = player.currentX - this.currentX;
+				double deltaY = player.currentY - this.currentY;
+				
+				shootingAngle = (int) Math.atan(deltaY/deltaX);
+				System.out.println(shootingAngle);
+				
+			}
+		}
+		
+		
+		
 		
 	}
 
 	@Override
 	public double getMinX() {
 		// TODO Auto-generated method stub
-		return 0;
+		return currentX;
 	}
 
 	@Override
 	public double getMaxX() {
 		// TODO Auto-generated method stub
-		return 0;
+		return currentX + IMAGE_WIDTH;
 	}
 
 	@Override
 	public double getMinY() {
 		// TODO Auto-generated method stub
-		return 0;
+		return currentY;
 	}
 
 	@Override
 	public double getMaxY() {
 		// TODO Auto-generated method stub
-		return 0;
+		return currentY + IMAGE_HEIGHT;
 	}
 
 	@Override
 	public long getHeight() {
 		// TODO Auto-generated method stub
-		return 0;
+		return IMAGE_HEIGHT;
 	}
 
 	@Override
 	public long getWidth() {
 		// TODO Auto-generated method stub
-		return 0;
+		return IMAGE_HEIGHT;
 	}
 
 	@Override
 	public Image getImage() {
 		// TODO Auto-generated method stub
-		return null;
+		return this.defaultImage;
 	}
 
 	@Override
@@ -136,16 +198,19 @@ public class Archer extends Sprite{
 		// TODO Auto-generated method stub
 		
 	}
-
+	public void setPlayers(ArrayList<Sprite> players) {
+		this.sprites = players;
+	}
+	
 	@Override
 	public void setBarriers(ArrayList<Rectangle> barriers) {
-		// TODO Auto-generated method stub
+		this.barriers = barriers;
 		
 	}
 
 	@Override
 	public void setSprites(ArrayList<Sprite> staticSprites) {
-		// TODO Auto-generated method stub
+		this.sprites = staticSprites;
 		
 	}
 
@@ -180,26 +245,17 @@ public class Archer extends Sprite{
 	}
 	public void shoot() {
 		
-		if (reloadTime <= 0) {
-			double currentVelocity = Math.sqrt((velocityX * velocityX) + (velocityY * velocityY));
-			double bulletVelocity = 500; // + currentVelocity;
-			double ratio = (bulletVelocity / currentVelocity);
-//			 = ratio * velocityX + velocityX;
-//			double bulletVelocityY = ratio * velocityY + velocityY;
-			double angleInRadians = Math.toRadians(currentAngle);
-			double bulletVelocityX = Math.cos(angleInRadians) * bulletVelocity + velocityX;
-			double bulletVelocityY = Math.sin(angleInRadians) * bulletVelocity + velocityY;
-			
-			double bulletCurrentX = (this.currentX + (this.IMAGE_WIDTH / 2));
-			double bulletCurrentY = (this.currentY + (this.IMAGE_HEIGHT / 2));
+		double bulletVelocity = 500; // + currentVelocity;
+		double angleInRadians = Math.toRadians(shootingAngle);
+		double bulletVelocityX = Math.cos(angleInRadians) * bulletVelocity + velocityX;
+		double bulletVelocityY = Math.sin(angleInRadians) * bulletVelocity + velocityY;
+		
+		double bulletCurrentX = (this.currentX + (this.IMAGE_WIDTH / 2));
+		double bulletCurrentY = (this.currentY + (this.IMAGE_HEIGHT / 2));
 
-			BulletSprite bullet = new BulletSprite(bulletCurrentX, bulletCurrentY, bulletVelocityX, bulletVelocityY);
-			System.out.println("shoot!");
-			sprites.add(bullet);
-			AudioPlayer.playAsynchronous("res/missile.wav");
+		BulletSprite bullet = new BulletSprite(bulletCurrentX, bulletCurrentY, bulletVelocityX, bulletVelocityY);
+		sprites.add(bullet);
 			
-			reloadTime = 100;
-			
-		}
+		reloadTime = 100;			
 	}
 }
