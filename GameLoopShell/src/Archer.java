@@ -12,7 +12,7 @@ public class Archer extends Sprite{
 	protected double velocityY = 0.1;			//PIXELS PER SECOND
 	private double velocity = 0.1;					
 	protected double reloadTime = 0;
-	private int shootingAngle = 0;
+	private double shootingAngle = 0;
 	private int range;
 	private double damage;
 	private double rateOfFire;
@@ -63,7 +63,7 @@ public class Archer extends Sprite{
 		}
 		
 	}
-	public int getShootingAngle() {
+	public double getShootingAngle() {
 		return shootingAngle;
 	}
 	public int getRange() {
@@ -83,15 +83,13 @@ public class Archer extends Sprite{
 	}
 	@Override
 	public void update(KeyboardInput keyboard, long actual_delta_time) {
+		shootingAngle = 0;
 		changeMovementTime -= actual_delta_time;
 		double newX = currentX;
 		double newY = currentY;
 		Random randomTime = new Random();
 		
-		reloadTime -= actual_delta_time;
-		if (reloadTime < 0) {
-			shoot();
-		}
+		
 				
 		if (changeMovementTime <= 100){
 			changeMovementTime = randomTime.nextInt(551) + 1000;
@@ -131,15 +129,28 @@ public class Archer extends Sprite{
 			if (other instanceof SimpleSprite) {
 				SimpleSprite player = (SimpleSprite)other;
 				
-				double deltaX = player.currentX - this.currentX;
-				double deltaY = player.currentY - this.currentY;
+				double deltaX = Math.abs(player.currentX - this.currentX);
+				double deltaY = Math.abs(player.currentY - this.currentY);
 				
-				shootingAngle = (int) Math.atan(deltaY/deltaX);
+				shootingAngle += Math.atan(deltaY/deltaX);
+				if (player.currentX < this.currentX && player.currentY > this.currentY){
+					shootingAngle = Math.PI - shootingAngle ;
+				}
+				else if(player.currentX < this.currentX && player.currentY < this.currentY){
+					shootingAngle += Math.PI;
+				}
+				else if(player.currentX > this.currentX && player.currentY < this.currentY){
+					shootingAngle = Math.PI *2 - shootingAngle;
+				}
+				
 				System.out.println(shootingAngle);
 				
 			}
 		}
-		
+		reloadTime -= actual_delta_time;
+		if (reloadTime < 0) {
+			shoot();
+		}
 		
 		
 		
@@ -244,11 +255,11 @@ public class Archer extends Sprite{
 		return isColliding;
 	}
 	public void shoot() {
-		
+
 		double bulletVelocity = 500; // + currentVelocity;
-		double angleInRadians = Math.toRadians(shootingAngle);
-		double bulletVelocityX = Math.cos(angleInRadians) * bulletVelocity + velocityX;
-		double bulletVelocityY = Math.sin(angleInRadians) * bulletVelocity + velocityY;
+//		double angleInRadians = Math.toRadians(shootingAngle);
+		double bulletVelocityX = Math.cos(shootingAngle) * bulletVelocity + velocityX;
+		double bulletVelocityY = Math.sin(shootingAngle) * bulletVelocity + velocityY;
 		
 		double bulletCurrentX = (this.currentX + (this.IMAGE_WIDTH / 2));
 		double bulletCurrentY = (this.currentY + (this.IMAGE_HEIGHT / 2));
