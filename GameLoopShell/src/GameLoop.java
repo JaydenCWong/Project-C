@@ -118,6 +118,8 @@ public class GameLoop extends JFrame {
 //   		}
     	me = new SimpleSprite(CastleBackground.START_X,CastleBackground.START_Y);
     	sprites.add(me);
+    	Turret test2 = new Turret(CastleBackground.START_X + 10,CastleBackground.START_Y,2);
+    	sprites.add(test2);
     	SateliteSprite test = new SateliteSprite(CastleBackground.START_X, CastleBackground.START_Y,0, 0, 0, false);
     	sprites.add(test);
    		
@@ -193,8 +195,6 @@ public class GameLoop extends JFrame {
 				sprite.update(keyboard, actual_delta_time);
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}    	
     }
     
@@ -251,7 +251,9 @@ public class GameLoop extends JFrame {
 //				g.fillRect((int)barrier.getX() + xOffset,(int) barrier.getY() + yOffset, (int)barrier.getWidth(), (int)barrier.getHeight());       	
 //			}
 
-			for (Sprite staticSprite : sprites) {
+			
+			for (int i = 0; i < sprites.size(); i++) {
+				Sprite staticSprite = sprites.get(i);
 				g.drawImage(staticSprite.getImage(), (int)staticSprite.getMinX() + xOffset, (int)staticSprite.getMinY() + yOffset, (int)staticSprite.getWidth(), (int)staticSprite.getHeight(), null);
 			}
 

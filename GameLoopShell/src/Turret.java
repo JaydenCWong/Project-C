@@ -6,22 +6,15 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
-
-public class Archer extends Sprite{
-	protected double velocityX = 0.1;          	//PIXELS PER SECOND
-	protected double velocityY = 0.1;			//PIXELS PER SECOND
-	private double velocity = 0.1;					
-	protected double reloadTime = 0;
-	private double shootingAngle = 0;
+public class Turret extends Sprite{
 	private int range;
 	private double damage;
 	private double rateOfFire;
-	private double speed;
-	private double health;
-	private int changeMovementTime = 0;
-	
-	
-	public Archer(double currentX, double currentY, int floor){
+	private int health;
+	private double shootingAngle;
+	private double reloadTime;
+
+	public Turret(double currentX, double currentY, int floor){
 		this.currentX = currentX;
 		this.currentY = currentY;
 		try {
@@ -32,32 +25,22 @@ public class Archer extends Sprite{
 		catch (IOException e) {
 			System.out.println(e.toString());
 		}
-		if (floor == 1){
-			this.range = 300;
-			this.damage = 1;
-			this.rateOfFire = 1;
-			this.speed = 0.1;
-			this.health = 1;
-		}
-		else if (floor == 2){
-			this.range = 400;
+		if (floor == 2){
+			this.range = 500;
 			this.damage = 1.5;
 			this.rateOfFire = 1;
-			this.speed = 0.1;
-			this.health = 2;
-		}
-		else if (floor == 3){
-			this.range = 450;
-			this.damage = 1.5;
-			this.rateOfFire = 1.5;
-			this.speed = 0.1;
 			this.health = 3;
 		}
+		else if (floor == 3){
+			this.range = 550;
+			this.damage = 1.5;
+			this.rateOfFire = 2;
+			this.health = 4;
+		}
 		else if (floor == 4){
-			this.range = 450;
+			this.range = 550;
 			this.damage = 2;
-			this.rateOfFire = 1.5;
-			this.speed = 0.1;
+			this.rateOfFire = 2;
 			this.health = 5;
 			
 		}
@@ -69,47 +52,6 @@ public class Archer extends Sprite{
 	@Override
 	public void update(KeyboardInput keyboard, long actual_delta_time) {
 		shootingAngle = 0;
-		changeMovementTime -= actual_delta_time;
-		double newX = currentX;
-		double newY = currentY;
-		Random randomTime = new Random();
-		
-		
-				
-		if (changeMovementTime <= 100){
-			changeMovementTime = randomTime.nextInt(551) + 1000;
-			Random randomDirection = new Random();
-			int direction = randomDirection.nextInt(2);
-			if (changeMovementTime % 2 == 0){
-				if (direction == 0){
-					velocityY = -velocity;
-					velocityX = 0;
-				}
-				else if(direction == 1){
-					velocityX = -velocity;
-					velocityY = 0;
-				}
-			}
-			else if(changeMovementTime % 2 == 1){
-				if (direction == 0){
-					velocityY = velocity;
-					velocityX = 0;
-				}
-				else if(direction == 1){
-					velocityX = velocity;
-					velocityY = 0;
-				}
-			}
-			
-		}
-		newX += actual_delta_time * velocityX;
-		newY += actual_delta_time * velocityY;
-		if (checkCollisionWithBarrier(newX, newY) == false) {
-			
-
-			this.currentX = newX;
-			this.currentY = newY;
-		}
 		for (Sprite other : sprites) {
 			if (other instanceof SimpleSprite) {
 				SimpleSprite player = (SimpleSprite)other;
@@ -137,10 +79,23 @@ public class Archer extends Sprite{
 			shoot();
 		}
 		
-		
-		
 	}
 
+	public void shoot() {
+
+		double bulletVelocity = 500; // + currentVelocity;
+//		double angleInRadians = Math.toRadians(shootingAngle);
+		double bulletVelocityX = Math.cos(shootingAngle) * bulletVelocity;
+		double bulletVelocityY = Math.sin(shootingAngle) * bulletVelocity;
+		
+		double bulletCurrentX = (this.currentX + (this.IMAGE_WIDTH / 2));
+		double bulletCurrentY = (this.currentY + (this.IMAGE_HEIGHT / 2));
+
+		BulletSprite bullet = new BulletSprite(bulletCurrentX, bulletCurrentY, bulletVelocityX, bulletVelocityY);
+		sprites.add(bullet);
+			
+		reloadTime = 100;			
+	}
 	@Override
 	public double getMinX() {
 		// TODO Auto-generated method stub
@@ -224,34 +179,8 @@ public class Archer extends Sprite{
 
 	@Override
 	public boolean checkCollisionWithBarrier(double x, double y) {
-		boolean isColliding = false;
-		
-		for (Rectangle barrier : barriers) {			
-			//colliding in x dimension?	
-			if ( !( (x + this.IMAGE_WIDTH) < barrier.getMinX() || x > barrier.getMaxX())) {			
-				//colliding in y dimension?	
-				if ( !( (y + this.IMAGE_HEIGHT) < barrier.getMinY() || y > barrier.getMaxY())) {								
-					isColliding = true;
-					break;
-				}
-			}
-		}
-		
-		return isColliding;
+		// TODO Auto-generated method stub
+		return false;
 	}
-	public void shoot() {
-
-		double bulletVelocity = 500; // + currentVelocity;
-//		double angleInRadians = Math.toRadians(shootingAngle);
-		double bulletVelocityX = Math.cos(shootingAngle) * bulletVelocity + velocityX;
-		double bulletVelocityY = Math.sin(shootingAngle) * bulletVelocity + velocityY;
-		
-		double bulletCurrentX = (this.currentX + (this.IMAGE_WIDTH / 2));
-		double bulletCurrentY = (this.currentY + (this.IMAGE_HEIGHT / 2));
-
-		BulletSprite bullet = new BulletSprite(bulletCurrentX, bulletCurrentY, bulletVelocityX, bulletVelocityY);
-		sprites.add(bullet);
-			
-		reloadTime = 100;			
-	}
+	
 }
