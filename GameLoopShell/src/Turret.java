@@ -18,7 +18,7 @@ public class Turret extends Sprite{
 		this.currentX = currentX;
 		this.currentY = currentY;
 		try {
-			this.defaultImage = ImageIO.read(new File("res/simple-sprite.png"));
+			this.defaultImage = ImageIO.read(new File("res/Turret.png"));
 			this.IMAGE_HEIGHT = this.defaultImage.getHeight(null);
 			this.IMAGE_WIDTH = this.defaultImage.getWidth(null);
 		}
