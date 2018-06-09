@@ -70,7 +70,6 @@ public class Turret extends Sprite{
 					shootingAngle = Math.PI *2 - shootingAngle;
 				}
 				
-				System.out.println(shootingAngle);
 				
 			}
 		}

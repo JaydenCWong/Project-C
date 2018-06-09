@@ -128,7 +128,6 @@ public class Archer extends Sprite{
 					shootingAngle = Math.PI *2 - shootingAngle;
 				}
 				
-				System.out.println(shootingAngle);
 				
 			}
 		}
