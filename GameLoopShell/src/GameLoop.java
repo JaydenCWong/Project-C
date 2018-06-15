@@ -8,7 +8,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-
+//test git WC
 public class GameLoop extends JFrame {
 
 	final public static int FRAMES_PER_SECOND = 60;
